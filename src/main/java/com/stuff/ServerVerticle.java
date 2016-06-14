@@ -6,11 +6,12 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.http.HttpClient; 
 import io.vertx.core.http.HttpClientOptions;
 import java.util.Base64;
+import java.util.Iterator;
 
 public class ServerVerticle extends AbstractVerticle {
-  private static final String USERID = "blahblah";
+  private static final String USERID = "user";
   private static final String PASSWORD = "super@secret";
-  private static final String defaultHost = "bpms.redhatkeynote.com";
+  private static final String defaultHost = "somehost";
                                             
   @Override
   public void start() throws Exception {
@@ -62,11 +63,37 @@ public class ServerVerticle extends AbstractVerticle {
     client.post("/kie-server/services/rest/server/containers/instances/score", response -> {
       response.exceptionHandler(t -> {
           System.err.println("RESPONSE: " + t);  // print exception
+          
       }).bodyHandler(output -> {
         JsonObject json = output.toJsonObject();
         System.out.println("OUTPUT: " + output);
-        
-      });
+        // TODO, parse the output
+       JsonArray resultsArray = json.getJsonObject("result")
+         .getJsonObject("execution-results")
+         .getJsonArray("results");
+         
+       System.out.println("\nresultsArray: " + resultsArray);
+
+       JsonObject x = resultsArray.getJsonObject(0);
+
+       System.out.println("x: " + x);
+
+       JsonObject playerObjectResults = resultsArray.getJsonObject(0)
+          .getJsonObject("value")
+          .getJsonObject("com.redhatkeynote.score.Player");
+
+       System.out.println("\nplayerObjectResults: " + playerObjectResults);
+
+       JsonArray playerAchievements = playerObjectResults.getJsonArray("achievements");
+       System.out.println("\nplayerAchievements: " + playerAchievements);
+
+       Iterator i = playerAchievements.iterator() ; 
+        while( i.hasNext() ) { 
+         JsonObject achievement = (JsonObject) i.next() ;
+         System.out.println(achievement.getString("desc"));  
+       } // while 
+
+      });  // bodyHandler
     })
         .setTimeout(3000)
         .putHeader("Authorization", basicAuth)
@@ -74,6 +101,7 @@ public class ServerVerticle extends AbstractVerticle {
         .putHeader("Content-Type","application/json")
         .exceptionHandler(t -> {
           System.err.println("REQUEST: " + t);  // print exception
+          
         })
         .end(input.encode());
 
