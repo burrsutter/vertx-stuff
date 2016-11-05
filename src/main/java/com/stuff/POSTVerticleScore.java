@@ -8,7 +8,7 @@ import io.vertx.core.http.HttpClientOptions;
 import java.util.Base64;
 import java.util.Iterator;
 
-public class ServerVerticle extends AbstractVerticle {
+public class POSTVerticleScore extends AbstractVerticle {
   private static final String USERID = "kiewb";
   private static final String PASSWORD = "kiewb";
   private static final String defaultHost = "localhost";
@@ -24,7 +24,7 @@ public class ServerVerticle extends AbstractVerticle {
     JsonObject input = new JsonObject();
     
     JsonObject player = new JsonObject();
-    player.put("uuid","p1");
+    player.put("uuid","p3");
     player.put("username", "John Doe");
     player.put("team", 1);
     player.put("score", 120);
